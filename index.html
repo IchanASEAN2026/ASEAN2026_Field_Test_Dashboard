@@ -132,6 +132,7 @@ border:1px solid rgba(255,255,255,.95);box-shadow:inset 0 1px 0 #fff,inset 0 cal
 .tl.a::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(165deg,rgba(255,255,255,.3) 0,rgba(255,255,255,0) 40%);box-shadow:inset 0 1px 0 rgba(255,255,255,.45)}
 .tl.a .tlg{flex:1 0 auto;height:auto;min-height:calc(var(--u)*var(--ah,2.6));background:none;padding:calc(var(--u)*.3)}
 .tl.a .tlg img{height:calc(var(--u)*var(--ah,2.6)*.86);max-height:none;width:auto;max-width:92%;border-radius:0}
+.tl.a.u{background:#fff;box-shadow:0 calc(var(--u)*.15) calc(var(--u)*.45) rgba(10,26,79,.2),inset 0 0 0 1px var(--line)}
 .tl.a.w,.tl.a.n{box-shadow:none}.tl.a.n{transform:scale(.96)}
 .tl.a.w::after{background:rgba(240,244,251,.7);-webkit-backdrop-filter:grayscale(.45);backdrop-filter:grayscale(.45);box-shadow:inset 0 calc(var(--u)*.1) calc(var(--u)*.3) rgba(10,26,79,.3)}
 .tl.a.n::after{background:rgba(232,237,246,.82);-webkit-backdrop-filter:grayscale(1);backdrop-filter:grayscale(1);box-shadow:inset 0 calc(var(--u)*.18) calc(var(--u)*.45) rgba(10,26,79,.45),inset 0 -1px 0 rgba(255,255,255,.6)}
@@ -290,7 +291,7 @@ const res=(n,h)=>tile(n,`<div class="ts${/>[\d.]+</.test(h)?' nu':''}">${h}</div
 /* app tile: the brand owns the tile. Two states only: any sample that is not 'OK' = faded with the hourglass; otherwise (no buffering, including no samples) = full colour */
 const APPK={Facebook:'fb',Tiktok:'tt',Youtube:'yt',GCash:'gc'};
 function app(n,rs,i){const v=i<0?[]:rs.map(r=>(r.a[i]||'').trim()).filter(Boolean),ok=v.filter(x=>x=='OK').length,c=ok<v.length?'w':'g',t=NM[n]||n;
-return `<div class="tl a ${APPK[n]} ${c}" role="img" aria-label="${t}: ${c=='w'?'buffering':'no buffering'}" title="${t} — ${!v.length?(i<0?'not tested on this operator':'no samples'):`no buffering in ${ok} of ${v.length} samples`}"><div class="tlg"><img src="${APP[APPK[n]]}" alt=""></div>${c=='w'?HG:v.length?OKB:''}</div>`}
+return `<div class="tl a ${APPK[n]} ${c}${v.length?'':' u'}" role="img" aria-label="${t}: ${c=='w'?'buffering':'no buffering'}" title="${t} — ${!v.length?(i<0?'not tested on this operator':'no samples'):`no buffering in ${ok} of ${v.length} samples`}"><div class="tlg">${v.length?`<img src="${APP[APPK[n]]}" alt="">`:''}</div>${c=='w'?HG:v.length?OKB:''}</div>`}
 const OKB='<i class="hg ok"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.6 4.6L19 7.5"/></svg></i>';
 const HG='<i class="hg"><svg viewBox="0 0 24 24" fill="none" stroke="#0a1a4f" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2.5h12M6 21.5h12"/><path d="M7.5 2.5v3.2c0 3 4.5 4.2 4.5 6.3s-4.500 3.300-4.500 6.300v3.200M16.5 2.5v3.2c0 3-4.500 4.200-4.500 6.300s4.500 3.300 4.500 6.300v3.200"/><path d="M9.800 18.800h4.400L12 15.800z" fill="#0a1a4f"/><path d="M10.300 6.800h3.400L12 8.900z" fill="#0a1a4f" stroke-width="1.200"/></svg></i>';
 function panels(o,rs){
