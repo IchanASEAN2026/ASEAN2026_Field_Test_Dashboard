@@ -133,10 +133,11 @@ border:1px solid rgba(255,255,255,.95);box-shadow:inset 0 1px 0 #fff,inset 0 cal
 .tl.a .tlg{flex:1 0 auto;height:auto;min-height:calc(var(--u)*var(--ah,2.6));background:none;padding:calc(var(--u)*.3)}
 .tl.a .tlg img{height:calc(var(--u)*var(--ah,2.6)*.86);max-height:none;width:auto;max-width:92%;border-radius:0}
 .tl.a.w,.tl.a.n{box-shadow:none}.tl.a.n{transform:scale(.96)}
-.tl.a.w::after{background:rgba(238,242,249,.45);-webkit-backdrop-filter:grayscale(.25);backdrop-filter:grayscale(.25);box-shadow:inset 0 calc(var(--u)*.1) calc(var(--u)*.3) rgba(10,26,79,.3)}
+.tl.a.w::after{background:rgba(240,244,251,.7);-webkit-backdrop-filter:grayscale(.45);backdrop-filter:grayscale(.45);box-shadow:inset 0 calc(var(--u)*.1) calc(var(--u)*.3) rgba(10,26,79,.3)}
 .tl.a.n::after{background:rgba(232,237,246,.82);-webkit-backdrop-filter:grayscale(1);backdrop-filter:grayscale(1);box-shadow:inset 0 calc(var(--u)*.18) calc(var(--u)*.45) rgba(10,26,79,.45),inset 0 -1px 0 rgba(255,255,255,.6)}
 .hg{position:absolute;z-index:2;right:5%;top:6%;width:calc(var(--u)*var(--ah,2.6)*.4);aspect-ratio:1;border-radius:50%;background:var(--yel);border:calc(var(--u)*.11) solid #fff;box-shadow:0 2px 6px rgba(10,26,79,.55);display:grid;place-items:center}
 .hg svg{width:60%;height:60%;animation:hgt 2.8s ease-in-out infinite}
+.hg.ok{background:var(--ok)}.hg.ok svg{width:62%;height:62%;animation:none}
 @keyframes hgt{0%,62%{transform:rotate(0)}100%{transform:rotate(180deg)}}
 @media(prefers-reduced-motion:reduce){.hg svg{animation:none}}
 .band{--ah:3.1;--sh:1.9}.hero{--ah:5.4;--sh:3.3}
@@ -289,7 +290,8 @@ const res=(n,h)=>tile(n,`<div class="ts${/>[\d.]+</.test(h)?' nu':''}">${h}</div
 /* app tile: the brand owns the tile. Two states only: any sample that is not 'OK' = faded with the hourglass; otherwise (no buffering, including no samples) = full colour */
 const APPK={Facebook:'fb',Tiktok:'tt',Youtube:'yt',GCash:'gc'};
 function app(n,rs,i){const v=i<0?[]:rs.map(r=>(r.a[i]||'').trim()).filter(Boolean),ok=v.filter(x=>x=='OK').length,c=ok<v.length?'w':'g',t=NM[n]||n;
-return `<div class="tl a ${APPK[n]} ${c}" role="img" aria-label="${t}: ${c=='w'?'buffering':'no buffering'}" title="${t} — ${!v.length?(i<0?'not tested on this operator':'no samples'):`no buffering in ${ok} of ${v.length} samples`}"><div class="tlg"><img src="${APP[APPK[n]]}" alt=""></div>${c=='w'?HG:''}</div>`}
+return `<div class="tl a ${APPK[n]} ${c}" role="img" aria-label="${t}: ${c=='w'?'buffering':'no buffering'}" title="${t} — ${!v.length?(i<0?'not tested on this operator':'no samples'):`no buffering in ${ok} of ${v.length} samples`}"><div class="tlg"><img src="${APP[APPK[n]]}" alt=""></div>${c=='w'?HG:v.length?OKB:''}</div>`}
+const OKB='<i class="hg ok"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.6 4.6L19 7.5"/></svg></i>';
 const HG='<i class="hg"><svg viewBox="0 0 24 24" fill="none" stroke="#0a1a4f" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2.5h12M6 21.5h12"/><path d="M7.5 2.5v3.2c0 3 4.5 4.2 4.5 6.3s-4.500 3.300-4.500 6.300v3.200M16.5 2.5v3.2c0 3-4.500 4.200-4.500 6.300s4.500 3.300 4.500 6.300v3.200"/><path d="M9.800 18.800h4.400L12 15.800z" fill="#0a1a4f"/><path d="M10.300 6.800h3.400L12 8.900z" fill="#0a1a4f" stroke-width="1.200"/></svg></i>';
 function panels(o,rs){
 /* video test (v1.34): resolution reached, shown under Ping for Open Signal and Ookla only; most frequent value over the selected tests (ties: higher resolution) */
@@ -300,7 +302,7 @@ const sp=[['Open Signal',8,35],['Fast',17,-1],['Ookla',26,38]].map(([n,b,vr])=>t
 const ap=[['Facebook',41+o],['Tiktok',44+o],['Youtube',47+o],['GCash',o?-1:68]].map(([n,i])=>app(n,rs,i)).join('');
 const chip=(h,l)=>{const x=h.replace(/<[^>]+>/g,''),f=/^\d+\/\d+$/.test(x);return `<div class="sc ${stt(h)}">${l?`<span>${l}</span>`:''}<b${f?` class="nu" style="font-size:min(calc(var(--u)*var(--rn)),${Math.floor(90/(x.length*.62))}cqw)"`:''}>${h}</b></div>`};
 const sv=`<div class="tl v">${'<div class="tlg">'+(IC.VoLTE?`<img src="${IC.VoLTE}" alt="VoLTE">`:'VoLTE')+'</div>'}<div class="sub">${chip(sc(rs,50+o)).replace('class="sc ','class="sc one ')}</div></div><div class="tl v"><div class="tlg">${IC.SMS?`<img src="${IC.SMS}" alt="SMS">`:''}</div><div class="tn">SMS</div><div class="sub">${chip(sc(rs,53+o)).replace('class="sc ','class="sc one ')}</div></div>`+[['wa','WhatsApp',56],['vb','Viber',62]].map(([k,n,b])=>`<div class="tl v ${k}" title="${n}"><div class="tlg"><img src="${SVC[k]}" alt="${n}"></div><div class="sub">${chip(sc(rs,b+o),'Voice')}${chip(sc(rs,b+3+o),'IM')}</div></div>`).join('');
-return `<div class="pn"><h4>Speed <small>DL · UL Mbps · Ping ms · Video</small></h4><div class="tls">${sp}</div></div><div class="pn"><h4>Apps</h4><div class="tls t4">${ap}</div></div><div class="pn"><h4>Services</h4><div class="tls sv">${sv}</div></div>`}
+return `<div class="pn"><h4>Speed <small>DL · UL Mbps · Ping ms · Video</small></h4><div class="tls">${sp}</div></div><div class="pn"><h4>Apps <small>Buffering</small></h4><div class="tls t4">${ap}</div></div><div class="pn"><h4>Services <small>Success Rate</small></h4><div class="tls sv">${sv}</div></div>`}
 const RB=`<svg class="rb rbb" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true"><path class="w2" d="M0 925C150 885 300 996 520 996S870 905 1000 935V965C870 935 740 1000 520 1000S150 920 0 955Z"/><path class="w1" d="M0 862C130 802 270 932 500 932S860 802 1000 852V908C870 862 740 986 500 986S140 852 0 916Z"/><path class="lr" d="M0 847C130 787 270 917 500 917S860 787 1000 837"/><path class="ly" d="M0 834C130 774 270 904 500 904S860 774 1000 824"/></svg><svg class="rb rbf" viewBox="0 0 1000 100" preserveAspectRatio="none" aria-hidden="true"><path class="rr" d="M0 60C90 60 150 18 245 20S400 56 500 40S690 12 775 24S920 52 1000 28"/><path class="ry" d="M0 70C90 70 150 28 245 30S400 66 500 50S690 22 775 34S920 62 1000 38"/><path class="rw" d="M0 80C90 80 150 38 245 40S400 76 500 60S690 32 775 44S920 72 1000 48"/></svg>`;
 function band(o,rs,hero){
 const sp=rs.map(r=>`<tr><td>${lb(r)}</td><td>${g(r,4)}</td>`+[8,17,26].map(b=>[0,1,2].map(k=>`<td>${g(r,b+3*o+k)}</td>`).join('')).join('')+`<td>${g(r,35+o)}</td><td>${g(r,38+o)}</td></tr>`).join('');
