@@ -481,6 +481,19 @@ html.show .hero .pns{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}html.show
 .sumt tr.tot td{background:#fff3c9;font-weight:800;border-top:2px solid #f3b61f}
 .sumn{color:#5a6b8f;font-size:12px;margin:10px 0 0}
 @media(max-width:700px){.sumo{padding:0}.sumc{border-radius:0;height:100%}}
+
+/* v1.52: compact comment form (name on top, comment box with a small Send button on its right) and no overlap with the QR card */
+.ctf{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:calc(var(--u)*.35);align-items:stretch}
+.ctf #ctn{grid-column:1/-1}
+.ctf textarea{grid-column:1;min-height:calc(var(--u)*2.6)}
+.ctf button{grid-column:2;width:auto;padding:0 calc(var(--u)*1);font-size:calc(var(--u)*.78);border-radius:calc(var(--u)*.7)}
+html.show .cht{overflow:hidden}
+html.show .ctl{min-height:calc(var(--u)*2.5)}
+html.show .side2{min-height:0}
+html.show .qr{flex:none}
+
+/* v1.53: long status text in the comments header stays on one line */
+.cth span{flex:1;min-width:0;margin:0 calc(var(--u)*.6);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:right}
 </style></head><body>
 <header><h1>ASEAN 2026 <span>Field Test Dashboard</span></h1><p>Globe · Smart · DITO — live results per network operator</p></header>
 <div class="wrap">
@@ -514,7 +527,7 @@ const GV=`https://docs.google.com/spreadsheets/d/${SHEET}/gviz/tq?tqx=out:csv&gi
 async function getCsv(u){const r=await fetch(u+'&_='+Date.now(),{cache:'no-store',signal:AbortSignal.timeout?AbortSignal.timeout(15000):undefined});if(!r.ok)throw new Error('HTTP '+r.status);const t=await r.text();if(/^\s*<(!doctype|html)/i.test(t))throw new Error('Google returned a sign-in page (share the sheet as "Anyone with the link: Viewer")');return csv(t)}
 const LIVE='1YbHNlI6rLVHBzKwyXyyah4JXAbrd6B-IFjp2IxnGkzE';const jsonpS=(id,sh)=>new Promise((ok,no)=>{const cb='gs'+Date.now()+Math.floor(Math.random()*1e4),el=document.createElement('script'),t=setTimeout(()=>{el.remove();delete window[cb];no(new Error('timed out'))},15000);window[cb]=d=>{clearTimeout(t);el.remove();delete window[cb];if(!d||d.status!='ok')return no(new Error('not shared'));ok([d.table.cols.map(c=>c.label||c.id),...d.table.rows.map(r=>r.c.map(c=>c?(c.f??c.v??''):''))])};el.onerror=()=>{clearTimeout(t);delete window[cb];no(new Error('blocked'))};el.src=`https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:json;responseHandler:${cb}&sheet=${encodeURIComponent(sh)}&_=${Date.now()}`;document.head.appendChild(el)});
 async function sheetRows(id,sh){try{return await getCsv(`https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sh)}`)}catch(e){try{return await jsonpS(id,sh)}catch(e2){throw new Error((e&&e.message||'blocked')+' – share the sheet as "Anyone with the link: Viewer"')}}}
-const BUILD='v1.51',CHAT_VIA_SCRIPT=false;let CFG={video:'',form:'',ftab:'',lv:'',err:''};const GVC=`https://docs.google.com/spreadsheets/d/${SHEET}/gviz/tq?tqx=out:csv&sheet=Config`,GVL=`https://docs.google.com/spreadsheets/d/${LIVE}/gviz/tq?tqx=out:csv&sheet=Config`;
+const BUILD='v1.53',CHAT_VIA_SCRIPT=false;let CFG={video:'',form:'',ftab:'',lv:'',err:''};const GVC=`https://docs.google.com/spreadsheets/d/${SHEET}/gviz/tq?tqx=out:csv&sheet=Config`,GVL=`https://docs.google.com/spreadsheets/d/${LIVE}/gviz/tq?tqx=out:csv&sheet=Config`;
 async function readCfg(){const one=async(u,w)=>{try{const x=await sheetRows(...u);if(w)CFG.err='';return Array.isArray(x)?x:csv(x)}catch(e){if(w)CFG.err=(e&&e.message)||'blocked';return[]}},[A,B]=await Promise.all([one([LIVE,'Config'],1),one([SHEET,'Config'])]),g=(a,re)=>{const r=a.find(x=>re.test((x[0]||'').trim()));return r?(r[1]||'').trim():''},V=/^(video|video link|live video|live feed)$/i;CFG.lv=g(A,V);const v=CFG.lv||g(B,V);if(v&&v!=CFG.video&&/^https?:/i.test(v)){CFG.video=v;if(!UI.fb)fit()}CFG.form=g(A,/^(form|comment form|chat form)$/i);CFG.ftab=g(A,/^(formtab|form tab|comment tab)$/i)}
 async function load(){const er=[];if(APPS_URL){try{const r=await fetch(APPS_URL+(APPS_URL.includes('?')?'&':'?')+'_='+Date.now(),{cache:'no-store'}),j=await r.json();if(j&&Array.isArray(j.rows)){if(!CFG.lv&&/^https?:/i.test(j.video||'')&&j.video!=CFG.video){CFG.video=j.video;if(!UI.fb)fit()}return j.rows}}catch(e){er.push('Apps Script endpoint not reachable')}}for(const u of [GV,EX]){try{return await getCsv(u)}catch(e){er.push((e&&e.message)||'blocked')}}try{return await jsonp()}catch(e){er.push('script fallback blocked or timed out')}lastErr=[...new Set(er)].join(' · ');throw new Error(lastErr)}
 const OPI={globe:0,smart:1,dito:2},cl=v=>{v=String(v==null?'':v).trim();return /^(null|n\/a|none)$/i.test(v)?'':v},lk=l=>lkey(l)||String(l).trim().toLowerCase();
@@ -756,7 +769,7 @@ s.style.transform=`translate(${((innerWidth-1920*k)/2).toFixed(2)}px,${((innerHe
 /* showcase mode (v1.44): switch in the toolbar (UI.show). On a window wider than 1.35 : 1 the page is laid out as a 1920 x (1920 * height / width) canvas: title bar on top, a narrow column of test information tiles on the left (17.5%), the carousel on the right (80% when the controls are hidden), then scaled to the window width so it fills the screen. Squarer windows get the v1.40 scaled picture. UI.ctl shows or hides the filters and the toolbar switches. */
 const shwUI=()=>{const b=$('#shw');if(!b)return;b.hidden=!(innerWidth>=1100||(innerWidth>=640&&innerWidth>innerHeight));b.classList.toggle('on',!!UI.show);b.setAttribute('aria-pressed',!!UI.show);b.textContent=UI.show?'▣ Exit showcase':'▣ Showcase'};
 const FBV='https://www.facebook.com/abscbnNEWS/videos/1749668416575885';UI.fb='';/* the Config sheet link is the default; a manual link lasts until reload */
-function vidSync(on){chSync();const b=$('#vb');if(!b)return;$('#vid').hidden=!UI.vid;const u=UI.fb||CFG.video||FBV,f=b.firstChild;$('#vo').href=u;if(on&&UI.vid){if(!f||f.dataset.u!==u){b.innerHTML='';const i=document.createElement('iframe');i.dataset.u=u;i.title='Live feed';i.allow='autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share; fullscreen';i.allowFullscreen=true;i.setAttribute('loading','lazy');i.src='https://www.facebook.com/plugins/video.php?href='+encodeURIComponent(u)+'&show_text=false&autoplay=true&mute=true&width=560';b.appendChild(i)}}else if(f)b.innerHTML=''}
+function vidSync(on){chSync();const b=$('#vb');if(!b)return;$('#vid').hidden=!UI.vid;const u=UI.fb||CFG.video||FBV,f=b.firstChild;$('#vo').href=u;if(on&&UI.vid){if(!f||f.dataset.u!==u){b.innerHTML='';const i=document.createElement('iframe');i.dataset.u=u;i.title='Live feed';i.allow='autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share; fullscreen';i.allowFullscreen=true;i.setAttribute('loading','lazy');i.src='https://www.facebook.com/plugins/video.php?href='+encodeURIComponent(u)+'&show_text=false&autoplay=true&mute=false&width=560';b.appendChild(i)}}else if(f)b.innerHTML=''}
 function fitSC(de,s){vidSync(1);const Lw=1920,Lh=Math.max(760,Math.min(1250,Math.round(Lw*innerHeight/innerWidth))),g=18,ctl=!!UI.ctl,aw=ctl?Math.round(Lw*.15):0,lc=Math.round(Lw*.25),b=$('#bands'),m=$('main');
 de.classList.add('tv','show');s.style.cssText=`position:absolute;left:0;top:0;width:${Lw}px;height:${Lh}px;transform:none;transform-origin:0 0`;
 de.style.setProperty('--g',g+'px');de.style.setProperty('--hw',Lw+'px');de.style.setProperty('--aw',aw+'px');de.style.setProperty('--lc',lc+'px');
@@ -795,12 +808,13 @@ const fmSend=(n,t)=>{const m=FM(),b=new URLSearchParams();b.set(m.nm,n);b.set(m.
 async function fmLoad(){const tab=CFG.ftab||'Form Responses 1',a=await sheetRows(LIVE,tab),L=[],R={};
 a.slice(1).forEach(r=>{const ts=(r[0]||'').trim(),nm=(r[1]||'').trim(),tx=(r[2]||'').trim();if(!ts||!tx||(r[3]||'').trim())return;const m=tx.match(/^⟦rx⟧(.+?)\|(.+?)\|(-?1)$/);if(m){const q=R[m[1]]=R[m[1]]||{};q[m[2]]=(q[m[2]]||0)+ +m[3];return}const t=ts.match(/(\d{1,2}):(\d{2})/);L.push({id:ts,name:nm,text:tx,when:t?pad(+t[1])+':'+t[2]:''})});
 L.forEach(m=>{const q=R[m.id]||{},o={};Object.keys(q).forEach(e=>{if(q[e]>0)o[e]=q[e]});m.rx=o});return L.slice(-50)}
-const RX=['👍','❤️','😂','👏','🎉','😮'],RXK='asean_rx';let CHsig='',CHopen=0,CHmine={},CHl={};const ckey=m=>m.id||('t'+[...(m.name+'|'+m.text)].reduce((h,c)=>(h*31+c.charCodeAt(0))|0,7));try{CHmine=JSON.parse(localStorage.getItem(RXK)||'{}')}catch(e){}
+const RX=['👍','❤️','😂','👏','🎉','😮'],RXK='asean_rx';let CHlast='',CHusr=0,CHsig='',CHopen=0,CHmine={},CHl={};const ckey=m=>m.id||('t'+[...(m.name+'|'+m.text)].reduce((h,c)=>(h*31+c.charCodeAt(0))|0,7));try{CHmine=JSON.parse(localStorage.getItem(RXK)||'{}')}catch(e){}
 const chSt=(t,bad)=>{const s=$('#cts');if(s){s.textContent=t;s.style.color=bad?'#c0392b':''}};
-function chRender(){const el=$('#ctl'),st=el.scrollTop+el.clientHeight>=el.scrollHeight-10,keep=el.scrollTop;
+function chRender(){const el=$('#ctl'),st=el.scrollTop+el.clientHeight>=el.scrollHeight-10,keep=el.scrollTop,lk=CH.list.length+'|'+(CH.list.length?ckey(CH.list[CH.list.length-1]):''),nw=lk!==CHlast;CHlast=lk;
 el.innerHTML=CH.list.length?CH.list.map((m,i)=>{const id=ckey(m),rx=m.id?(m.rx||{}):(CHl[id]||{}),mine=CHmine[id]||[],chips=RX.filter(e=>rx[e]>0).map(e=>`<button type="button" class="rxc${mine.includes(e)?' me':''}" data-i="${i}" data-e="${e}">${e}<i>${rx[e]}</i></button>`).join(''),pick=String(CHopen)===String(id)?`<span class="rxp">${RX.map(e=>`<button type="button" data-i="${i}" data-e="${e}">${e}</button>`).join('')}</span>`:'';
 return `<div class="cm"><div class="cmh"><b>${esc(m.name||'Guest')}</b><span>${esc(m.when||'')}</span></div>${esc(m.text)}${`<div class="rxr">${chips}<button type="button" class="rxa" data-add="${id}" title="Add a reaction">☺+</button>${pick}</div>`}</div>`}).join(''):'<div class="cme">No comments yet</div>';
-if(st)el.scrollTop=el.scrollHeight;else el.scrollTop=keep}
+if(st||(nw&&Date.now()-CHusr>15000)){el.scrollTop=el.scrollHeight;requestAnimationFrame(()=>{el.scrollTop=el.scrollHeight})}else el.scrollTop=keep}
+['wheel','touchmove','pointerdown'].forEach(t=>$('#ctl').addEventListener(t,()=>{CHusr=Date.now()},{passive:true}));
 $('#ctl').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.add){const id=b.dataset.add;CHopen=String(CHopen)===id?0:id;chRender();return}
 const m=CH.list[+b.dataset.i],em=b.dataset.e;if(!m||!em)return;const k=ckey(m),mine=CHmine[k]=CHmine[k]||[],on=mine.includes(em),dl=on?-1:1;
 if(on)mine.splice(mine.indexOf(em),1);else mine.push(em);try{localStorage.setItem(RXK,JSON.stringify(CHmine))}catch(_){}
